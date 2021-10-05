@@ -28,6 +28,72 @@
 #include "../../include/variables/CNEMOEulerVariable.hpp"
 #include <math.h>
 
+struct CNEMOIndices {
+  const unsigned long RHOS_INDEX, T_INDEX, TVE_INDEX, VEL_INDEX, P_INDEX,
+  RHO_INDEX, H_INDEX, A_INDEX, RHOCVTR_INDEX, RHOCVVE_INDEX,
+  LAM_VISC_INDEX, EDDY_VISC_INDEX;
+
+  CNEMOIndices(nDim, nSpecies) {
+    RHOS_INDEX      = 0;
+    T_INDEX         = nSpecies;
+    TVE_INDEX       = nSpecies+1;
+    VEL_INDEX       = nSpecies+2;
+    P_INDEX         = nSpecies+nDim+2;
+    RHO_INDEX       = nSpecies+nDim+3;
+    H_INDEX         = nSpecies+nDim+4;
+    A_INDEX         = nSpecies+nDim+5;
+    RHOCVTR_INDEX   = nSpecies+nDim+6;
+    RHOCVVE_INDEX   = nSpecies+nDim+7;
+    LAM_VISC_INDEX  = nSpecies+nDim+8;
+    EDDY_VISC_INDEX = nSpecies+nDim+9;
+  }
+};
+
+struct CNEMOIndices {
+  const unsigned short nDim, nSpecies;
+
+  CNEMOIndices(nDim, nSpecies) {
+    nDim(nDim) ...
+
+    inline unsigned short GetVelIndex() const { return nSpecies+2; }
+
+    /*!
+     * \brief Retrieves the value of the enthalpy in the primitive variable vector.
+     */
+    inline unsigned short GetHIndex() const { return nSpecies+nDim+4; }
+
+  }
+};
+
+template <class IndicesType>
+void f() {
+  const auto myIndices = IndicesType(nDim, nSpecies);
+
+  V_i[myIndices.VEL_INDEX]
+  V_i[myIndices.GetVelIndex()]
+}
+
+struct CNEMOIndices {
+  const unsigned short nDim;
+
+  CNEMOIndices(nDim, nSpecies) {
+    nDim(nDim) ...
+
+    inline unsigned short GetTIndex() const { return 0; }
+
+    inline unsigned short GetVelIndex() const { return 1; }
+
+    /*!
+     * \brief Retrieves the value of the enthalpy in the primitive variable vector.
+     */
+    inline unsigned short GetHIndex() const { return nSpecies+nDim+4; }
+
+  }
+};
+
+
+
+
 CNEMOEulerVariable::CNEMOEulerVariable(su2double val_pressure,
                                        const su2double *val_massfrac,
                                        const su2double *val_mach,

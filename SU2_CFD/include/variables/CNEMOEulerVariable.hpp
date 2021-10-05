@@ -31,6 +31,8 @@
 #include "../fluid/CNEMOGas.hpp"
 #include "../../../Common/include/toolboxes/geometry_toolbox.hpp"
 
+CSourceSA<CNEMOEulerVariable::Indices>
+
 /*!
  * \class CNEMOEulerVariable
  * \brief Main class for defining the variables of the NEMO Euler's solver.
@@ -41,6 +43,11 @@
 class CNEMOEulerVariable : public CFlowVariable {
  public:
   static constexpr size_t MAXNVAR = 25;
+
+  struct Indices {
+
+
+  };
 
  protected:
   bool ionization;          /*!< \brief Presence of charged species in gas mixture. */

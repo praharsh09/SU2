@@ -44,6 +44,7 @@
  * \ingroup ConvDiscr
  * \author C. Pederson, A. Bueno., and A. Campos.
  */
+template <class FlowIndices>
 class CUpwScalar : public CNumerics {
  protected:
   su2double a0 = 0.0;               /*!< \brief The maximum of the face-normal velocity and 0 */

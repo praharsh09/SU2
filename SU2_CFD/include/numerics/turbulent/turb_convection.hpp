@@ -36,12 +36,16 @@
  * \ingroup ConvDiscr
  * \author A. Bueno.
  */
-class CUpwSca_TurbSA final : public CUpwScalar {
+template <class FlowIndices>
+class CUpwSca_TurbSA_generic final : public CUpwScalar<FlowIndices> {
 private:
   /*!
    * \brief Adds any extra variables to AD
    */
-  void ExtraADPreaccIn() override;
+  inline void ExtraADPreaccIn() override {
+    AD::SetPreaccIn(V_i, nDim+1);
+    AD::SetPreaccIn(V_j, nDim+1);
+  }
 
   /*!
    * \brief SA specific steps in the ComputeResidual method
@@ -59,6 +63,10 @@ public:
   CUpwSca_TurbSA(unsigned short val_nDim, unsigned short val_nVar, const CConfig* config);
 
 };
+
+using CUpwSca_TurbSA = CUpwSca_TurbSA_generic<CEulerVariable::Indices>;
+using CUpwSca_IncTurbSA = CUpwSca_TurbSA_generic<CIncEulerVariable::Indices>;
+using CUpwSca_NEMOTurbSA = CUpwSca_TurbSA_generic<CNEMOEulerVariable::Indices>;
 
 /*!
  * \class CUpwSca_TurbSST
