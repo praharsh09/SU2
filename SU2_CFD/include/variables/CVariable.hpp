@@ -4,7 +4,7 @@
           variables, function definitions in file <i>CVariable.cpp</i>.
           All variables are children of at least this class.
  * \author F. Palacios, T. Economon
- * \version 7.2.0 "Blackbird"
+ * \version 7.2.1 "Blackbird"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -936,6 +936,12 @@ public:
    * \return Value of the mass fraction of species s.
    */
   inline virtual su2double GetMassFraction(unsigned long iPoint, unsigned long val_Species) const { return 0.0; }
+
+  /*!
+   * \brief Get the species enthalpy.
+   * \return Value of the species enthalpy.
+   */
+  inline virtual su2double* GetEnthalpys(unsigned long iPoint) { return nullptr; }
 
   /*!
    * \brief A virtual member.
@@ -2153,9 +2159,9 @@ public:
    */
   inline virtual su2double GetSensitivity(unsigned long iPoint, unsigned long iDim) const { return 0.0; }
 
-  inline virtual void SetTauWall(unsigned long iPoint, su2double val_tau_wall) {}
+  inline virtual void SetTau_Wall(unsigned long iPoint, su2double tau_wall) {}
 
-  inline virtual su2double GetTauWall(unsigned long iPoint) const { return 0.0; }
+  inline virtual su2double GetTau_Wall(unsigned long iPoint) const { return 0.0; }
 
   inline virtual void SetVortex_Tilting(unsigned long iPoint, CMatrixView<const su2double> PrimGrad_Flow,
                                         const su2double* Vorticity, su2double LaminarViscosity) {}

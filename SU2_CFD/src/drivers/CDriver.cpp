@@ -2,7 +2,7 @@
  * \file driver_structure.cpp
  * \brief The main subroutines for driving single or multi-zone problems.
  * \author T. Economon, H. Kline, R. Sanchez, F. Palacios
- * \version 7.2.0 "Blackbird"
+ * \version 7.2.1 "Blackbird"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -828,7 +828,7 @@ void CDriver::Geometrical_Preprocessing_FVM(CConfig *config, CGeometry **&geomet
 
     /*--- Create main agglomeration structure ---*/
 
-    geometry[iMGlevel] = new CMultiGridGeometry(geometry, config, iMGlevel);
+    geometry[iMGlevel] = new CMultiGridGeometry(geometry[iMGlevel-1], config, iMGlevel);
 
     /*--- Compute points surrounding points. ---*/
 
@@ -841,8 +841,8 @@ void CDriver::Geometrical_Preprocessing_FVM(CConfig *config, CGeometry **&geomet
 
     /*--- Create the control volume structures ---*/
 
-    geometry[iMGlevel]->SetControlVolume(config, geometry[iMGlevel-1], ALLOCATE);
-    geometry[iMGlevel]->SetBoundControlVolume(config, geometry[iMGlevel-1], ALLOCATE);
+    geometry[iMGlevel]->SetControlVolume(geometry[iMGlevel-1], ALLOCATE);
+    geometry[iMGlevel]->SetBoundControlVolume(geometry[iMGlevel-1], ALLOCATE);
     geometry[iMGlevel]->SetCoord(geometry[iMGlevel-1]);
 
     /*--- Find closest neighbor to a surface point ---*/
@@ -1363,7 +1363,7 @@ void CDriver::Numerics_Preprocessing(CConfig *config, CGeometry **geometry, CSol
 
     case ADJ_NAVIER_STOKES:
       adj_ns = ns = compressible = true;
-      turbulent = (config->GetKind_Turb_Model() != NONE); break;
+      turbulent = (config->GetKind_Turb_Model() != TURB_MODEL::NONE); break;
 
     case ADJ_RANS:
       adj_ns = ns = compressible = turbulent = true;
@@ -1375,16 +1375,16 @@ void CDriver::Numerics_Preprocessing(CConfig *config, CGeometry **geometry, CSol
 
   if (turbulent || fem_turbulent)
     switch (config->GetKind_Turb_Model()) {
-      case SA:        spalart_allmaras = true;        break;
-      case SA_NEG:    neg_spalart_allmaras = true;    break;
-      case SA_E:      e_spalart_allmaras = true;      break;
-      case SA_COMP:   comp_spalart_allmaras = true;   break;
-      case SA_E_COMP: e_comp_spalart_allmaras = true; break;
-      case SST:       menter_sst = true;              break;
-      case SST_SUST:  menter_sst = true;              break;
-      default:
-        SU2_MPI::Error("Specified turbulence model unavailable or none selected", CURRENT_FUNCTION);
+      case TURB_MODEL::NONE:
+        SU2_MPI::Error("No turbulence model selected.", CURRENT_FUNCTION);
         break;
+      case TURB_MODEL::SA:        spalart_allmaras = true;        break;
+      case TURB_MODEL::SA_NEG:    neg_spalart_allmaras = true;    break;
+      case TURB_MODEL::SA_E:      e_spalart_allmaras = true;      break;
+      case TURB_MODEL::SA_COMP:   comp_spalart_allmaras = true;   break;
+      case TURB_MODEL::SA_E_COMP: e_comp_spalart_allmaras = true; break;
+      case TURB_MODEL::SST:       menter_sst = true;              break;
+      case TURB_MODEL::SST_SUST:  menter_sst = true;              break;
     }
 
   /*--- If the Menter SST model is used, store the constants of the model and determine the
@@ -2467,7 +2467,7 @@ void CDriver::StaticMesh_Preprocessing(const CConfig *config, CGeometry** geomet
         setting the moving wall velocities for the finest mesh. ---*/
       for (iMGlevel = 1; iMGlevel <= config->GetnMGLevels(); iMGlevel++){
         iMGfine = iMGlevel-1;
-        geometry[iMGlevel]->SetRestricted_GridVelocity(geometry[iMGfine], config);
+        geometry[iMGlevel]->SetRestricted_GridVelocity(geometry[iMGfine]);
       }
     }
   } else {
@@ -2680,6 +2680,7 @@ void CDriver::Print_DirectResidual(RECORDING kind_recording) {
 
   const unsigned short fieldWidth = 15;
   PrintingToolbox::CTablePrinter RMSTable(&std::cout);
+  RMSTable.SetPrecision(config_container[ZONE_0]->GetOutput_Precision());
 
   /*--- The CTablePrinter requires two sweeps:
     *--- 0. Add the colum names (addVals=0=false) plus CTablePrinter.PrintHeader()
@@ -2701,7 +2702,7 @@ void CDriver::Print_DirectResidual(RECORDING kind_recording) {
             RMSTable << log10(solvers[FLOW_SOL]->GetRes_RMS(iVar));
         }
 
-        if (configs->GetKind_Turb_Model() != NONE && !configs->GetFrozen_Visc_Disc()) {
+        if (configs->GetKind_Turb_Model() != TURB_MODEL::NONE && !configs->GetFrozen_Visc_Disc()) {
           for (unsigned short iVar = 0; iVar < solvers[TURB_SOL]->GetnVar(); iVar++) {
             if (!addVals)
               RMSTable.AddColumn("rms_Turb" + iVar_iZone2string(iVar, iZone), fieldWidth);
