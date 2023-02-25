@@ -40,6 +40,8 @@ class CIncNSVariable final : public CIncEulerVariable {
 private:
   VectorType Tau_Wall;        /*!< \brief Magnitude of the wall shear stress from a wall function. */
   VectorType DES_LengthScale;
+  su2vector<su2double> Entropy_Generation_Heat_Transfer;
+  su2vector<su2double> Entropy_Generation_Viscous_Dissipation;
 
 public:
   /*!
@@ -132,4 +134,39 @@ public:
    */
   inline su2double GetDES_LengthScale(unsigned long iPoint) const override { return DES_LengthScale(iPoint); }
 
+  /*!
+   * \brief A virtual member: Set entropy generation due to heat transfer.
+   * \param[in] iPoint - Point index.
+   * \param[in] val_entropy_gen_ht - value of entropy generation due to heat transfer.
+   */
+  inline void SetEntropy_Generation_Heat_Transfer(unsigned long iPoint, su2double val_entropy_gen_ht) final {
+    Entropy_Generation_Heat_Transfer(iPoint) = val_entropy_gen_ht;
+  }
+
+  /*!
+   * \brief A virtual member: Get entropy generation due to heat transfer.
+   * \param[in] iPoint - Point index.
+   * \return Entropy generation due to heat transfer.
+   */
+  inline su2double GetEntropy_Generation_Heat_Transfer(unsigned long iPoint) const final {
+    return Entropy_Generation_Heat_Transfer(iPoint);
+  }
+
+  /*!
+   * \brief A virtual member: Set entropy generation due to viscous dissipation.
+   * \param[in] iPoint - Point index.
+   * \param[in] val_entropy_gen_ht - value of entropy generation due to viscous dissipation.
+   */
+  inline void SetEntropy_Generation_Viscous_Dissipation(unsigned long iPoint, su2double val_entropy_gen_visc) final {
+    Entropy_Generation_Viscous_Dissipation(iPoint) = val_entropy_gen_visc;
+  }
+
+  /*!
+   * \brief A virtual member: Get entropy generation due to viscous dissipation.
+   * \param[in] iPoint - Point index.
+   * \return Entropy generation due to viscous dissipation.
+   */
+  inline su2double GetEntropy_Generation_Viscous_Dissipation(unsigned long iPoint) const final {
+    return Entropy_Generation_Viscous_Dissipation(iPoint);
+  }
 };

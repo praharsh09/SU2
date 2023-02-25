@@ -133,6 +133,10 @@ void CFlowIncOutput::SetHistoryOutputFields(CConfig *config){
   AddHistoryOutputFields_ScalarMAX_RES(config);
   /// END_GROUP
 
+  // TODO : Add condition, change location, change history field type
+  AddHistoryOutput("INTEGRATED_ENTROPY_GEN_HT", "TotalEntropyGenHeatTransfer", ScreenOutputFormat::FIXED, "FLOW_COEFF", "Integrated entropy generation due to heat transfer", HistoryFieldType::RESIDUAL);
+  AddHistoryOutput("INTEGRATED_ENTROPY_GEN_VISC", "TotalEntropyGenVisc", ScreenOutputFormat::FIXED, "FLOW_COEFF", "Integrated entropy generation due to viscous dissipation", HistoryFieldType::RESIDUAL);
+
   /// BEGIN_GROUP: BGS_RES, DESCRIPTION: The block-gauss seidel residuals of the SOLUTION variables.
   /// DESCRIPTION: Maximum residual of the pressure.
   AddHistoryOutput("BGS_PRESSURE",   "bgs[P]", ScreenOutputFormat::FIXED,   "BGS_RES", "BGS residual of the pressure.", HistoryFieldType::RESIDUAL);
@@ -264,6 +268,11 @@ void CFlowIncOutput::LoadHistoryData(CConfig *config, CGeometry *geometry, CSolv
     SetHistoryOutputValue("STREAMWISE_HEAT", flow_solver->GetStreamwisePeriodicValues().Streamwise_Periodic_IntegratedHeatFlow);
   }
 
+  if(true) {
+    SetHistoryOutputValue("INTEGRATED_ENTROPY_GEN_HT", flow_solver->GetTotal_EntropyGen_HT());
+    SetHistoryOutputValue("INTEGRATED_ENTROPY_GEN_VISC", flow_solver->GetTotal_EntropyGen_Visc());
+  }
+
   /*--- Set the analyse surface history values --- */
 
   SetAnalyzeSurface(solver, geometry, config, false);
@@ -363,6 +372,12 @@ void CFlowIncOutput::SetVolumeOutputFields(CConfig *config){
       AddVolumeOutput("RECOVERED_TEMPERATURE", "Recovered_Temperature", "SOLUTION", "Recovered physical temperature");
   }
 
+  // Segregated Entropy Generation
+  if(config->GetEnergy_Equation()) {
+    AddVolumeOutput("ENTROPY_GENERATION_HEAT_TRANSFER", "Entropy_gen_ht", "SOLUTION", "Entropy generation due to heat transfer");
+    AddVolumeOutput("ENTROPY_GENERATION_VISCOUS", "Entropy_gen_visc", "SOLUTION", "Entropy generation due to viscous dissipation");
+  }
+
   AddCommonFVMOutputs(config);
 }
 
@@ -435,6 +450,12 @@ void CFlowIncOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolve
     SetVolumeOutputValue("RECOVERED_PRESSURE", iPoint, Node_Flow->GetStreamwise_Periodic_RecoveredPressure(iPoint));
     if (heat && streamwisePeriodic_temperature)
       SetVolumeOutputValue("RECOVERED_TEMPERATURE", iPoint, Node_Flow->GetStreamwise_Periodic_RecoveredTemperature(iPoint));
+  }
+
+  // Segregated Entropy Generation
+  if (config->GetEnergy_Equation()) {
+    SetVolumeOutputValue("ENTROPY_GENERATION_HEAT_TRANSFER", iPoint, Node_Flow->GetEntropy_Generation_Heat_Transfer(iPoint));
+    SetVolumeOutputValue("ENTROPY_GENERATION_VISCOUS", iPoint, Node_Flow->GetEntropy_Generation_Viscous_Dissipation(iPoint));
   }
 
   LoadCommonFVMOutputs(config, geometry, iPoint);

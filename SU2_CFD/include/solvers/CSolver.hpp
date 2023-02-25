@@ -102,6 +102,8 @@ protected:
 
   su2double Total_Custom_ObjFunc = 0.0; /*!< \brief Total custom objective function. */
   su2double Total_ComboObj = 0.0;       /*!< \brief Total 'combo' objective for all monitored boundaries */
+  su2double Total_EntropyGenHT = 0.0; /*!< \brief Total entropy generation due to heat transfer. */
+  su2double Total_EntropyGenVisc = 0.0; /*!< \brief Total entropy generation due to viscous dissipation. */
 
   /*--- Variables that need to go. ---*/
 
@@ -386,6 +388,18 @@ public:
    * \return Value of the minimum local CFL number.
    */
   inline su2double GetMin_CFL_Local(void) const { return Min_CFL_Local; }
+
+  /*!
+   * \brief Get the value of the total integrated entropy gen due to heat transfer.
+   * \return Value of the total integrated entropy gen due to heat transfer.
+   */
+  inline virtual su2double GetTotal_EntropyGen_HT(void) const { return Total_EntropyGenHT; }
+
+  /*!
+   * \brief Get the value of the total integrated entropy gen due to viscous dissipation.
+   * \return Value of the total integrated entropy gen due to viscous dissipation.
+   */
+  inline virtual su2double GetTotal_EntropyGen_Visc(void) const { return Total_EntropyGenVisc; }
 
   /*!
    * \brief Get the value of the average local CFL number.
@@ -1712,6 +1726,18 @@ public:
    * \param[in] val_Total_MaxHeat - Value of the total heat load.
    */
   inline virtual void SetTotal_MaxHeatFlux(su2double val_Total_MaxHeat) { }
+
+  /*!
+   * \brief A virtual member.
+   * \param[in] val_Total_EntropyGen_ht - Value of the total integrated entropy gen due to heat transfer.
+   */
+  inline virtual void SetTotal_EntropyGen_HT(su2double val_Total_EntropyGen_ht) { }
+
+  /*!
+   * \brief A virtual member.
+   * \param[in] val_Total_EntropyGen_visc - Value of the total integrated entropy gen due to viscous dissipation.
+   */
+  inline virtual void SetTotal_EntropyGen_Visc(su2double val_Total_EntropyGen_visc) { }
 
   /*!
    * \brief A virtual member.

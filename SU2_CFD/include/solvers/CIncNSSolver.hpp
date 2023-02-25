@@ -95,6 +95,15 @@ class CIncNSSolver final : public CIncEulerSolver {
   void Compute_Streamwise_Periodic_Recovered_Values(CConfig *config, const CGeometry *geometry,
                                                     const unsigned short iMesh);
 
+  /*!
+   * \brief Compute entropy generation due to heat transfer, viscous dissipation and store in CVariable.
+   * \param[in] config - Definition of the particular problem.
+   * \param[in] geometry - Geometrical definition of the problem.
+   * \param[in] iMesh - current mesh level for the multigrid.
+   */
+  void Compute_Entropy_Generation(CConfig *config, const CGeometry *geometry,
+                                                    const unsigned short iMesh);
+
 public:
   /*!
    * \brief Constructor of the class.

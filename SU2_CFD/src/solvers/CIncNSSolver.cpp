@@ -112,6 +112,10 @@ void CIncNSSolver::Preprocessing(CGeometry *geometry, CSolver **solver_container
     // seteddyviscfirstpoint
   }
 
+  if (config->GetEnergy_Equation()) {
+    Compute_Entropy_Generation(config, geometry, iMesh);
+  }
+
   /*--- Compute recovered pressure and temperature for streamwise periodic flow ---*/
   if (config->GetKind_Streamwise_Periodic() != ENUM_STREAMWISE_PERIODIC::NONE)
     Compute_Streamwise_Periodic_Recovered_Values(config, geometry, iMesh);
@@ -232,6 +236,67 @@ void CIncNSSolver::GetStreamwise_Periodic_Properties(const CGeometry *geometry,
   } // if energy
 }
 
+void CIncNSSolver::Compute_Entropy_Generation(CConfig *config, const CGeometry *geometry,
+                                              const unsigned short iMesh) {
+
+  /*
+   * citation of the paper
+  */
+  unsigned long iPoint;
+  double Integrated_entropy_gen_ht = 0.0, Integrated_entropy_gen_visc = 0.0;
+  
+  for (iPoint=0; iPoint<nPointDomain; iPoint++) {
+
+    // variables needed - thermal conductivity, Temp, Grad Temp, viscosity, Grad U
+    unsigned short iDim, jDim;
+    su2double Grad_Vel[3][3] = {{0.0}}, Grad_Temp[3] = {0.0};
+    double Term5 = 0.0;
+    auto thermal_k = nodes->GetThermalConductivity(iPoint);
+    auto thermal_k_t = nodes->GetSpecificHeatCp(iPoint) * nodes->GetEddyViscosity(iPoint) / config->GetPrandtl_Turb();
+    auto Temp = nodes->GetTemperature(iPoint);
+    auto mu_total = nodes->GetLaminarViscosity(iPoint) + nodes->GetEddyViscosity(iPoint);
+
+    for (iDim = 0; iDim < nDim; iDim++) {
+      for (jDim = 0; jDim < nDim; jDim++) {
+        Grad_Vel[iDim][jDim] = nodes->GetGradient_Primitive(iPoint, prim_idx.Velocity() + iDim, jDim);
+      }
+      Grad_Temp[iDim] = nodes->GetGradient_Primitive(iPoint, prim_idx.Temperature(), iDim);
+    }
+
+    // Entropy generation due to heat transfer
+    // Term1 (k/(T^2))
+    auto Term1 = (thermal_k + thermal_k_t) / pow(Temp,2);
+
+    // Term2 (sum of grad square terms)
+    auto Term2 = pow(Grad_Temp[0],2) + pow(Grad_Temp[1],2) + pow(Grad_Temp[2],2);
+
+    auto Entropy_gen_ht = Term1 * Term2;
+
+    // Entropy generation due to viscous dissipation
+    // Term3 (mu/T)
+    auto Term3 = mu_total/Temp;
+
+    // Term4 (2 * sum of grad square terms)
+    auto Term4 = 2 * (pow(Grad_Vel[0][0],2) + pow(Grad_Vel[1][1],2) + pow(Grad_Vel[2][2],2));     // TODO changes for 3D
+
+    // Term5 (square of sum of cross grad terms)
+    Term5 = pow(Grad_Vel[0][1] + Grad_Vel[1][0], 2);                 // TODO changes for 3D: WRITE IT AS FOR LOOP with nDim
+    Term5 += pow(Grad_Vel[0][2] + Grad_Vel[2][0], 2);
+    Term5 += pow(Grad_Vel[1][2] + Grad_Vel[2][1], 2);
+
+    auto Entropy_gen_visc = Term3 * (Term4 + Term5);
+
+    // total integrated entropy generation in the computational domain
+    Integrated_entropy_gen_ht += Entropy_gen_ht * geometry->nodes->GetVolume(iPoint);
+    Integrated_entropy_gen_visc += Entropy_gen_visc * geometry->nodes->GetVolume(iPoint);
+
+    SetTotal_EntropyGen_HT(Integrated_entropy_gen_ht);
+    SetTotal_EntropyGen_Visc(Integrated_entropy_gen_visc);
+
+    nodes->SetEntropy_Generation_Viscous_Dissipation(iPoint, Entropy_gen_visc * geometry->nodes->GetVolume(iPoint));
+    nodes->SetEntropy_Generation_Heat_Transfer(iPoint, Entropy_gen_ht * geometry->nodes->GetVolume(iPoint));
+  }
+}
 
 void CIncNSSolver::Compute_Streamwise_Periodic_Recovered_Values(CConfig *config, const CGeometry *geometry,
                                                                 const unsigned short iMesh) {

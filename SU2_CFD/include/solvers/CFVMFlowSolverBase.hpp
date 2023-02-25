@@ -166,6 +166,8 @@ class CFVMFlowSolverBase : public CSolver {
   vector<su2double> MaxHF_Visc;          /*!< \brief Maximum heat flux (viscous contribution) for each boundary. */
   su2double AllBound_HF_Visc = 0.0;      /*!< \brief Heat load (viscous contribution) for all the boundaries. */
   su2double AllBound_MaxHF_Visc = 0.0;   /*!< \brief Maximum heat flux (viscous contribution) for all boundaries. */
+  su2double Total_EntropyGen_Visc = 0.0; /*!< \brief Value of the Total entropy generation due to viscosity. */
+  su2double Total_EntropyGen_HT = 0.0;   /*!< \brief Value of the Total entropy generation due to heat transfer. */
 
   vector<vector<su2double> > Inlet_Ptotal;      /*!< \brief Value of the Total P. */
   vector<vector<su2double> > Inlet_Ttotal;      /*!< \brief Value of the Total T. */
@@ -2007,6 +2009,30 @@ class CFVMFlowSolverBase : public CSolver {
    * \param[in] val_cequivarea - Value of the Equivalent Area coefficient.
    */
   inline void SetTotal_HeatFluxDiff(su2double val_heat) final { Total_HeatFluxDiff = val_heat; }
+
+  /*!
+   * \brief A virtual member.
+   * \param[in] val_Total_EntropyGen_ht - Value of the total integrated entropy gen due to heat transfer.
+   */
+  inline void SetTotal_EntropyGen_HT(su2double val_Total_EntropyGen_ht) final { Total_EntropyGen_HT = val_Total_EntropyGen_ht; }
+
+  /*!
+   * \brief A virtual member.
+   * \param[in] val_Total_EntropyGen_visc - Value of the total integrated entropy gen due to viscous dissipation.
+   */
+  inline void SetTotal_EntropyGen_Visc(su2double val_Total_EntropyGen_visc) final { Total_EntropyGen_Visc =  val_Total_EntropyGen_visc; }
+
+  /*!
+   * \brief Provide the total entropy gen due to heat transfer.
+   * \return Value of the total integrated entropy gen due to heat transfer.
+   */
+  inline su2double GetTotal_EntropyGen_HT() const final { return Total_EntropyGen_HT; }
+
+  /*!
+   * \brief Provide the total entropy gen due to viscous dissipation.
+   * \return Value of the total integrated entropy gen due to viscous dissipation.
+   */
+  inline su2double GetTotal_EntropyGen_Visc() const final { return Total_EntropyGen_Visc; }
 
   /*!
    * \brief Set the value of the Equivalent Area coefficient.

@@ -2298,4 +2298,31 @@ public:
   virtual su2double GetSourceTerm_DispAdjoint(unsigned long iPoint, unsigned long iDim) const { return 0.0; }
   virtual su2double GetSourceTerm_VelAdjoint(unsigned long iPoint, unsigned long iDim) const { return 0.0; }
 
+  /*!
+   * \brief A virtual member: Set entropy generation due to heat transfer.
+   * \param[in] iPoint - Point index.
+   * \param[in] val_entropy_gen_ht - value of entropy generation due to heat transfer.
+   */
+  inline virtual void SetEntropy_Generation_Heat_Transfer(unsigned long iPoint, su2double val_entropy_gen_ht) { }
+
+  /*!
+   * \brief A virtual member: Get entropy generation due to heat transfer.
+   * \param[in] iPoint - Point index.
+   * \return Entropy generation due to heat transfer.
+   */
+  inline virtual su2double GetEntropy_Generation_Heat_Transfer(unsigned long iPoint) const { return 0.0; }
+
+    /*!
+   * \brief A virtual member: Set the entropy generation due to viscous dissipation.
+   * \param[in] iPoint - Point index.
+   * \param[in] val_entropy_gen_visc - value of entropy generation due to viscous dissipation.
+   */
+  inline virtual void SetEntropy_Generation_Viscous_Dissipation(unsigned long iPoint, su2double val_entropy_gen_visc) { }
+
+  /*!
+   * \brief A virtual member: Get the entropy generation due to viscous dissipation.
+   * \param[in] iPoint - Point index.
+   * \return Entropy generation due to viscous dissipation.
+   */
+  inline virtual su2double GetEntropy_Generation_Viscous_Dissipation(unsigned long iPoint) const { return 0.0; }
 };
